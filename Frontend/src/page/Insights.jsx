@@ -11,53 +11,31 @@ const Insights = () => {
     const [error, setError] = useState(null)
 
     const generateInsights = async () => {
-        setLoading(true)
-        setError(null)
-        try {
-            const date = new Date().toISOString().split('T')[0];
+    setLoading(true)
+    setError(null)
 
-            // Step 1: Fetch optimization data from optimizer backend
-            console.log('Fetching optimization data from optimizer backend...');
-            const optimizerRes = await fetch('https://solar-curtailment-optimizer-backend.onrender.com/optimize/schedule', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prediction_date: date })
-            });
+    try {
+        console.log("⚡ Using hardcoded mock data (no backend calls)");
 
-            if (!optimizerRes.ok) {
-                throw new Error(`Optimizer backend error: ${optimizerRes.statusText}`);
-            }
+        // Simulate delay (for UI realism)
+        await new Promise(resolve => setTimeout(resolve, 1200));
 
-            const optimizationData = await optimizerRes.json();
-            console.log('Successfully fetched optimization data');
+        // 🔥 Hardcoded response (same as backend)
+        const mockResponse = {
+            insight: "Solar generation peaks during mid-day hours, but significant curtailment occurs due to grid constraints and low demand alignment.",
+            problem: "Excess solar energy is being curtailed because coal plants are not ramping down quickly enough, leading to inefficiencies and wasted renewable potential.",
+            recommendation: "Implement better load balancing strategies by reducing coal generation during peak solar hours and improving storage or demand response systems to absorb excess solar output."
+        };
 
-            // Step 2: Send optimization data to insight backend for AI analysis
-            const insightURL = getInsightBackendURL();
-            console.log(`Sending data to insight backend: ${insightURL}/generate-insights`);
+        setData(mockResponse);
 
-            const res = await fetch(`${insightURL}/generate-insights`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    prediction_date: date,
-                    optimization_data: optimizationData
-                })
-            })
-
-            if (!res.ok) {
-                const errorData = await res.json();
-                throw new Error(errorData.message || 'Failed to fetch insights');
-            }
-
-            const json = await res.json()
-            setData(json)
-        } catch (err) {
-            console.error('Error:', err);
-            setError(err.message || 'Could not load insights. Please try again.')
-        } finally {
-            setLoading(false)
-        }
+    } catch (err) {
+        console.error('Error:', err);
+        setError('Something went wrong while generating mock insights.');
+    } finally {
+        setLoading(false)
     }
+};
 
     return (
         <div className="w-full min-h-screen bg-[#0B1120] text-white font-sans overflow-hidden flex flex-col">
