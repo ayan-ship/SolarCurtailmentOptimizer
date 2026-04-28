@@ -1,6 +1,7 @@
 import { KeySquare } from 'lucide-react'
 import React, { useState } from 'react'
 import { Link, Navigate, useNavigate } from 'react-router-dom'
+import { getBackendURL } from '../utils/apiConfig'
 
 const Login = () => {
 
@@ -11,7 +12,8 @@ const Login = () => {
 
   const formSubmitted = async (e)=>{
     e.preventDefault();
-    const response =  await fetch('https://solarcurtailmentoptimizer.onrender.com/auth/login' ,{
+    const backendURL = getBackendURL();
+    const response =  await fetch(`${backendURL}/auth/login` ,{
       method: 'POST',
       credentials: 'include',
       headers: { 'Content-Type': 'application/json' },

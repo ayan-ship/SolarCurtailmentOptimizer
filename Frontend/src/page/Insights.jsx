@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Sparkles, Lightbulb, Zap, AlertTriangle, CheckCircle, Brain } from 'lucide-react'
 import InsightsHero from '../assets/InsightsHero.jpeg'
+import { getInsightBackendURL } from '../utils/apiConfig'
 
 const Insights = () => {
     const navigate = useNavigate()
@@ -13,16 +14,46 @@ const Insights = () => {
         setLoading(true)
         setError(null)
         try {
-            const res = await fetch('https://solarcurtailmentoptimizer-1.onrender.com/generate-insights', {
+            const date = new Date().toISOString().split('T')[0];
+
+            // Step 1: Fetch optimization data from optimizer backend
+            console.log('Fetching optimization data from optimizer backend...');
+            const optimizerRes = await fetch('https://solar-curtailment-optimizer-backend.onrender.com/optimize/schedule', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({})
+                body: JSON.stringify({ prediction_date: date })
+            });
+
+            if (!optimizerRes.ok) {
+                throw new Error(`Optimizer backend error: ${optimizerRes.statusText}`);
+            }
+
+            const optimizationData = await optimizerRes.json();
+            console.log('Successfully fetched optimization data');
+
+            // Step 2: Send optimization data to insight backend for AI analysis
+            const insightURL = getInsightBackendURL();
+            console.log(`Sending data to insight backend: ${insightURL}/generate-insights`);
+
+            const res = await fetch(`${insightURL}/generate-insights`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    prediction_date: date,
+                    optimization_data: optimizationData
+                })
             })
-            if (!res.ok) throw new Error('Failed to fetch insights')
+
+            if (!res.ok) {
+                const errorData = await res.json();
+                throw new Error(errorData.message || 'Failed to fetch insights');
+            }
+
             const json = await res.json()
             setData(json)
         } catch (err) {
-            setError('Could not load insights. Please try again.')
+            console.error('Error:', err);
+            setError(err.message || 'Could not load insights. Please try again.')
         } finally {
             setLoading(false)
         }

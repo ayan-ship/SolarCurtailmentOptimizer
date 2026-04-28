@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { getBackendURL } from '../utils/apiConfig'
 
 const Protected = ({ children }) => {
     const [isAuth, setIsAuth] = useState(null)  // ✅ null = still loading
@@ -10,7 +11,8 @@ const Protected = ({ children }) => {
 
         const verifyAuth = async () => {
             try {
-                const res = await fetch('https://solarcurtailmentoptimizer.onrender.com/auth/verify', {
+                const backendURL = getBackendURL();
+                const res = await fetch(`${backendURL}/auth/verify`, {
                     credentials: 'include',
                     cache: 'no-store'
                 });

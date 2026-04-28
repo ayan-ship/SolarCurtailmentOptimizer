@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { useNavigate, useLocation } from 'react-router-dom'
 import { Home, Zap, LogOut, LogIn, Info, Sparkles } from 'lucide-react'
+import { getBackendURL } from '../utils/apiConfig'
 
 const Navbar = () => {
   const navigate = useNavigate()
@@ -18,7 +19,8 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('https://solarcurtailmentoptimizer.onrender.com/auth/logout', {
+      const backendURL = getBackendURL();
+      const response = await fetch(`${backendURL}/auth/logout`, {
         method: 'POST',
         credentials: 'include',
       })
